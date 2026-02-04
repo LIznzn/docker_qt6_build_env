@@ -13,6 +13,7 @@ RUN dnf -y update \
     && dnf -y makecache \
     && dnf -y groupinstall "Development Tools" \
     && dnf -y install \
+        gcc-toolset-12 \
         git \
         wget \
         curl \
@@ -49,7 +50,8 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
-RUN ./configure \
+RUN bash -lc "source /opt/rh/gcc-toolset-12/enable \
+    && ./configure \
         -prefix /opt/qt/${QT_VERSION} \
         -opensource -confirm-license \
         -nomake tests -nomake examples \
@@ -58,7 +60,7 @@ RUN ./configure \
         -opengl desktop \
         -- -DQT_FEATURE_x86intrin=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
-    && cmake --install .
+    && cmake --install ."
 
 FROM rockylinux:${ROCKY_VERSION}
 
