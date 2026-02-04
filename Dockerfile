@@ -52,30 +52,25 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
-RUN cat <<'EOF' > /tmp/qt-everywhere-src-${QT_VERSION}/qtbase/config.tests/x86intrin/CMakeLists.txt
-cmake_minimum_required(VERSION 3.16)
-set(TEST_x86intrin TRUE CACHE BOOL "" FORCE)
-EOF
 
 RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
     && export CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
     && export CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++ \
-    && rm -rf CMakeCache.txt CMakeFiles \
     && ./configure \
         -prefix /opt/qt/${QT_VERSION} \
         -opensource -confirm-license \
         -nomake tests -nomake examples \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
+        -no-feature-x86intrin \
+        -no-feature-x86simd \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
         -- -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
            -DCMAKE_CXX_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/g++ \
            -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
-    ; status=$? \
-    ; mkdir -p /out \
-    ; [ -f /tmp/qt-everywhere-src-${QT_VERSION}/config.summary ] && cp /tmp/qt-everywhere-src-${QT_VERSION}/config.summary /out/ \
-    ; if [ $status -ne 0 ]; then echo failed > /out/qt_config_failed; exit 0; fi \
-    ; cmake --build . --parallel ${MAKE_JOBS} \
+    && mkdir -p /out \
+    && [ -f /tmp/qt-everywhere-src-${QT_VERSION}/config.summary ] && cp /tmp/qt-everywhere-src-${QT_VERSION}/config.summary /out/ \
+    && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
 
 FROM builder AS summary
