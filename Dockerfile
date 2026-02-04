@@ -58,7 +58,7 @@ RUN bash -lc "source /opt/rh/gcc-toolset-12/enable \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
-        -- -DQT_FEATURE_x86intrin=OFF \
+        -- -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
 
