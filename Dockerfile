@@ -14,6 +14,8 @@ RUN dnf -y update \
     && dnf -y groupinstall "Development Tools" \
     && dnf -y install \
         gcc-toolset-12 \
+        gcc-toolset-12-gcc \
+        gcc-toolset-12-gcc-c++ \
         git \
         wget \
         curl \
@@ -61,7 +63,9 @@ RUN bash -lc "source /opt/rh/gcc-toolset-12/enable \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
-        -- -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
+        -- -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-12/root/usr/bin/gcc \
+           -DCMAKE_CXX_COMPILER=/opt/rh/gcc-toolset-12/root/usr/bin/g++ \
+           -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
 
