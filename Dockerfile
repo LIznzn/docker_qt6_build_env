@@ -56,6 +56,7 @@ RUN ./configure \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
+        -- -DQT_FEATURE_x86intrin=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install .
 
