@@ -1,0 +1,27 @@
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+
+ehthumbs.db
+Thumbs.db
+
+*.swp
+*.swo
+*.tmp
+
+.idea/
+.vscode/
+
+node_modules/
+
+*.log
+
+# Python
+__pycache__/
+*.py[cod]
+
+# Build artifacts
+build/
+dist/
