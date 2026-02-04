@@ -7,6 +7,10 @@ ARG QT_VERSION
 ARG MAKE_JOBS=6
 
 RUN dnf -y update \
+    && dnf -y install dnf-plugins-core \
+    && (dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb) \
+    && dnf -y install epel-release \
+    && dnf -y makecache \
     && dnf -y groupinstall "Development Tools" \
     && dnf -y install \
         git \
@@ -66,6 +70,10 @@ ENV LD_LIBRARY_PATH=${QT_HOME}/lib:${LD_LIBRARY_PATH}
 ENV PKG_CONFIG_PATH=${QT_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}
 
 RUN dnf -y update \
+    && dnf -y install dnf-plugins-core \
+    && (dnf config-manager --set-enabled powertools || dnf config-manager --set-enabled crb) \
+    && dnf -y install epel-release \
+    && dnf -y makecache \
     && dnf -y install \
         ca-certificates \
         git \
