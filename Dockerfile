@@ -13,8 +13,7 @@ RUN dnf -y update \
     && dnf -y makecache \
     && dnf -y groupinstall "Development Tools" \
     && dnf -y install \
-        clang \
-        llvm \
+        llvm-toolset-17 \
         git \
         wget \
         curl \
@@ -51,8 +50,9 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
-RUN bash -lc "export CC=/usr/bin/clang \
-    && export CXX=/usr/bin/clang++ \
+RUN bash -lc "source /opt/rh/llvm-toolset-17/enable \
+    && export CC=/opt/rh/llvm-toolset-17/root/usr/bin/clang \
+    && export CXX=/opt/rh/llvm-toolset-17/root/usr/bin/clang++ \
     && rm -rf CMakeCache.txt CMakeFiles \
     && ./configure \
         -prefix /opt/qt/${QT_VERSION} \
@@ -61,8 +61,8 @@ RUN bash -lc "export CC=/usr/bin/clang \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
-        -- -DCMAKE_C_COMPILER=/usr/bin/clang \
-           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
+        -- -DCMAKE_C_COMPILER=/opt/rh/llvm-toolset-17/root/usr/bin/clang \
+           -DCMAKE_CXX_COMPILER=/opt/rh/llvm-toolset-17/root/usr/bin/clang++ \
            -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
