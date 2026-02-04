@@ -50,3 +50,18 @@ jobs:
             LINUXDEPLOY_VERSION=continuous
             LINUXDEPLOY_QT_VERSION=continuous
             APPIMAGETOOL_VERSION=continuous
+
+      - name: Export config.summary
+        run: |
+          docker buildx build \
+            --target summary \
+            --build-arg QT_VERSION=6.10.2 \
+            --build-arg ROCKY_VERSION=8 \
+            --output type=local,dest=./out \
+            .
+
+      - name: Upload config.summary
+        uses: actions/upload-artifact@v4
+        with:
+          name: qt-config-summary
+          path: ./out/config.summary

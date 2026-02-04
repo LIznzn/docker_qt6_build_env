@@ -52,6 +52,11 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
+RUN cat <<'EOF' > /tmp/qt-everywhere-src-${QT_VERSION}/qtbase/config.tests/x86intrin/CMakeLists.txt
+cmake_minimum_required(VERSION 3.16)
+set(TEST_x86intrin TRUE CACHE BOOL \"\" FORCE)
+EOF
+
 RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
     && export CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
     && export CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++ \
@@ -68,6 +73,10 @@ RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
            -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
+
+FROM builder AS summary
+RUN mkdir -p /out \
+    && cp /tmp/qt-everywhere-src-${QT_VERSION}/config.summary /out/
 
 FROM rockylinux:${ROCKY_VERSION}
 
