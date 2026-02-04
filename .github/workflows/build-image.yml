@@ -42,10 +42,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_NAME }}:qt-6.8.3
+            ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_NAME }}:qt-6.10.2
             ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
-            QT_VERSION=6.8.3
+            QT_VERSION=6.10.2
             ROCKY_VERSION=8
             LINUXDEPLOY_VERSION=continuous
             LINUXDEPLOY_QT_VERSION=continuous
