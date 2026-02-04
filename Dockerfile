@@ -51,6 +51,9 @@ RUN curl -fsSL -o qt-src.tar.xz \
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
 RUN bash -lc "source /opt/rh/gcc-toolset-12/enable \
+    && export CC=/opt/rh/gcc-toolset-12/root/usr/bin/gcc \
+    && export CXX=/opt/rh/gcc-toolset-12/root/usr/bin/g++ \
+    && rm -rf CMakeCache.txt CMakeFiles \
     && ./configure \
         -prefix /opt/qt/${QT_VERSION} \
         -opensource -confirm-license \
