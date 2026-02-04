@@ -5,6 +5,11 @@ FROM rockylinux:${ROCKY_VERSION} AS builder
 
 ARG QT_VERSION
 ARG MAKE_JOBS=6
+ENV TOOLSET_ROOT=/opt/rh/gcc-toolset-10/root
+ENV PATH=${TOOLSET_ROOT}/usr/bin:${TOOLSET_ROOT}/usr/sbin:${PATH}
+ENV LD_LIBRARY_PATH=${TOOLSET_ROOT}/usr/lib64:${TOOLSET_ROOT}/usr/lib:${LD_LIBRARY_PATH}
+ENV CC=${TOOLSET_ROOT}/usr/bin/gcc
+ENV CXX=${TOOLSET_ROOT}/usr/bin/g++
 
 RUN dnf -y update \
     && dnf -y install dnf-plugins-core \
@@ -13,9 +18,9 @@ RUN dnf -y update \
     && dnf -y makecache \
     && dnf -y groupinstall "Development Tools" \
     && dnf -y install \
-        gcc-toolset-13 \
-        gcc-toolset-13-gcc \
-        gcc-toolset-13-gcc-c++ \
+        gcc-toolset-10 \
+        gcc-toolset-10-gcc \
+        gcc-toolset-10-gcc-c++ \
         git \
         wget \
         curl \
@@ -52,34 +57,18 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
-RUN cat <<'EOF' > /tmp/qt-everywhere-src-${QT_VERSION}/qtbase/config.tests/x86intrin/CMakeLists.txt
-cmake_minimum_required(VERSION 3.16)
-project(x86intrin C CXX)
-set(TEST_x86intrin TRUE CACHE BOOL "" FORCE)
-EOF
 
-RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
-    && export CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
-    && export CXX=/opt/rh/gcc-toolset-13/root/usr/bin/g++ \
-    && ./configure \
+RUN ./configure \
         -prefix /opt/qt/${QT_VERSION} \
         -opensource -confirm-license \
         -nomake tests -nomake examples \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
-        -no-feature-x86intrin \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
-        -- -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
-           -DCMAKE_CXX_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/g++ \
-           -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
-    && mkdir -p /out \
-    && [ -f /tmp/qt-everywhere-src-${QT_VERSION}/config.summary ] && cp /tmp/qt-everywhere-src-${QT_VERSION}/config.summary /out/ \
+        -- -DCMAKE_C_COMPILER=${TOOLSET_ROOT}/usr/bin/gcc \
+           -DCMAKE_CXX_COMPILER=${TOOLSET_ROOT}/usr/bin/g++ \
     && cmake --build . --parallel ${MAKE_JOBS} \
-    && cmake --install ."
-
-FROM builder AS summary
-RUN mkdir -p /out \
-    && cp -r /out /out_copy
+    && cmake --install .
 
 FROM rockylinux:${ROCKY_VERSION}
 

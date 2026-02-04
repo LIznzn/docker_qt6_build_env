@@ -52,20 +52,3 @@ jobs:
             LINUXDEPLOY_VERSION=continuous
             LINUXDEPLOY_QT_VERSION=continuous
             APPIMAGETOOL_VERSION=continuous
-
-      - name: Export config.summary
-        if: always()
-        run: |
-          docker buildx build \
-            --target summary \
-            --build-arg QT_VERSION=6.8.3 \
-            --build-arg ROCKY_VERSION=8 \
-            --output type=local,dest=./out \
-            .
-
-      - name: Upload config.summary
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: qt-config-summary
-          path: ./out/out_copy
