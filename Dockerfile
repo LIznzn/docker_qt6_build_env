@@ -1,5 +1,5 @@
 ARG ROCKY_VERSION=8
-ARG QT_VERSION=6.8.3
+ARG QT_VERSION=6.10.2
 
 FROM rockylinux:${ROCKY_VERSION} AS builder
 
@@ -56,7 +56,6 @@ RUN ./configure \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
-        -- -DQT_FEATURE_rdseed=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install .
 
