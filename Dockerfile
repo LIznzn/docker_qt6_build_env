@@ -13,9 +13,8 @@ RUN dnf -y update \
     && dnf -y makecache \
     && dnf -y groupinstall "Development Tools" \
     && dnf -y install \
-        gcc-toolset-12 \
-        gcc-toolset-12-gcc \
-        gcc-toolset-12-gcc-c++ \
+        clang \
+        llvm \
         git \
         wget \
         curl \
@@ -52,9 +51,8 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
-RUN bash -lc "source /opt/rh/gcc-toolset-12/enable \
-    && export CC=/opt/rh/gcc-toolset-12/root/usr/bin/gcc \
-    && export CXX=/opt/rh/gcc-toolset-12/root/usr/bin/g++ \
+RUN bash -lc "export CC=/usr/bin/clang \
+    && export CXX=/usr/bin/clang++ \
     && rm -rf CMakeCache.txt CMakeFiles \
     && ./configure \
         -prefix /opt/qt/${QT_VERSION} \
@@ -63,8 +61,8 @@ RUN bash -lc "source /opt/rh/gcc-toolset-12/enable \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
-        -- -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-12/root/usr/bin/gcc \
-           -DCMAKE_CXX_COMPILER=/opt/rh/gcc-toolset-12/root/usr/bin/g++ \
+        -- -DCMAKE_C_COMPILER=/usr/bin/clang \
+           -DCMAKE_CXX_COMPILER=/usr/bin/clang++ \
            -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
     && cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
