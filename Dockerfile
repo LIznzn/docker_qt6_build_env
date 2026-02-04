@@ -62,7 +62,6 @@ RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
         -nomake tests -nomake examples \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -no-feature-x86intrin \
-        -no-feature-x86simd \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
         -- -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
