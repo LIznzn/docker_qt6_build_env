@@ -1,5 +1,5 @@
 ARG ROCKY_VERSION=8
-ARG QT_VERSION=6.10.2
+ARG QT_VERSION=6.8.3
 
 FROM rockylinux:${ROCKY_VERSION} AS builder
 
@@ -48,13 +48,13 @@ RUN dnf -y update \
 
 WORKDIR /tmp
 RUN curl -fsSL -o qt-src.tar.xz \
-        "https://download.qt.io/official_releases/qt/6.10/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz" \
+        "https://download.qt.io/official_releases/qt/6.8/${QT_VERSION}/single/qt-everywhere-src-${QT_VERSION}.tar.xz" \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
 RUN cat <<'EOF' > /tmp/qt-everywhere-src-${QT_VERSION}/qtbase/config.tests/x86intrin/CMakeLists.txt
 cmake_minimum_required(VERSION 3.16)
-set(TEST_x86intrin TRUE CACHE BOOL \"\" FORCE)
+set(TEST_x86intrin TRUE CACHE BOOL "" FORCE)
 EOF
 
 RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \

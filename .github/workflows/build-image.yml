@@ -3,14 +3,14 @@ name: build-env
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: [ "master", "main" ]
 
 permissions:
   contents: read
   packages: write
 
 env:
-  IMAGE_NAME: qt6-build-env
+  IMAGE_NAME: qt6_build_env
 
 jobs:
   build:
@@ -31,8 +31,10 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Normalize GHCR owner
-        run: echo "GHCR_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+      - name: Normalize image name
+        run: |
+          echo "GHCR_OWNER=${GITHUB_REPOSITORY_OWNER,,}" >> "$GITHUB_ENV"
+          echo "IMAGE_NAME=${IMAGE_NAME,,}" >> "$GITHUB_ENV"
 
       - name: Build and push
         uses: docker/build-push-action@v5
@@ -42,10 +44,10 @@ jobs:
           platforms: linux/amd64,linux/arm64
           push: true
           tags: |
-            ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_NAME }}:qt-6.10.2
+            ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_NAME }}:qt-6.8.3
             ghcr.io/${{ env.GHCR_OWNER }}/${{ env.IMAGE_NAME }}:latest
           build-args: |
-            QT_VERSION=6.10.2
+            QT_VERSION=6.8.3
             ROCKY_VERSION=8
             LINUXDEPLOY_VERSION=continuous
             LINUXDEPLOY_QT_VERSION=continuous
@@ -56,7 +58,7 @@ jobs:
         run: |
           docker buildx build \
             --target summary \
-            --build-arg QT_VERSION=6.10.2 \
+            --build-arg QT_VERSION=6.8.3 \
             --build-arg ROCKY_VERSION=8 \
             --output type=local,dest=./out \
             .
