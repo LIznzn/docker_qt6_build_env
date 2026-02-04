@@ -52,6 +52,11 @@ RUN curl -fsSL -o qt-src.tar.xz \
     && tar -xJf qt-src.tar.xz
 
 WORKDIR /tmp/qt-everywhere-src-${QT_VERSION}
+RUN cat <<'EOF' > /tmp/qt-everywhere-src-${QT_VERSION}/qtbase/config.tests/x86intrin/CMakeLists.txt
+cmake_minimum_required(VERSION 3.16)
+project(x86intrin C CXX)
+set(TEST_x86intrin TRUE CACHE BOOL "" FORCE)
+EOF
 
 RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
     && export CC=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
