@@ -71,12 +71,16 @@ RUN bash -lc "source /opt/rh/gcc-toolset-13/enable \
         -- -DCMAKE_C_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/gcc \
            -DCMAKE_CXX_COMPILER=/opt/rh/gcc-toolset-13/root/usr/bin/g++ \
            -DQT_FEATURE_x86intrin=OFF -DQT_FORCE_X86INTRIN=OFF \
-    && cmake --build . --parallel ${MAKE_JOBS} \
+    ; status=$? \
+    ; mkdir -p /out \
+    ; [ -f /tmp/qt-everywhere-src-${QT_VERSION}/config.summary ] && cp /tmp/qt-everywhere-src-${QT_VERSION}/config.summary /out/ \
+    ; if [ $status -ne 0 ]; then echo failed > /out/qt_config_failed; exit 0; fi \
+    ; cmake --build . --parallel ${MAKE_JOBS} \
     && cmake --install ."
 
 FROM builder AS summary
 RUN mkdir -p /out \
-    && cp /tmp/qt-everywhere-src-${QT_VERSION}/config.summary /out/
+    && cp -r /out /out_copy
 
 FROM rockylinux:${ROCKY_VERSION}
 
@@ -85,8 +89,8 @@ ARG RUST_VERSION=stable
 
 ENV QT_HOME=/opt/qt/${QT_VERSION}
 ENV PATH=${QT_HOME}/bin:/opt/appimage:${PATH}
-ENV LD_LIBRARY_PATH=${QT_HOME}/lib:${LD_LIBRARY_PATH}
-ENV PKG_CONFIG_PATH=${QT_HOME}/lib/pkgconfig:${PKG_CONFIG_PATH}
+ENV LD_LIBRARY_PATH=${QT_HOME}/lib
+ENV PKG_CONFIG_PATH=${QT_HOME}/lib/pkgconfig
 
 RUN dnf -y update \
     && dnf -y install dnf-plugins-core \
