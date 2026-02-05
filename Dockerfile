@@ -41,6 +41,14 @@ RUN dnf -y update \
         libXinerama-devel \
         libXi-devel \
         libxkbcommon-devel \
+        libxkbcommon-x11-devel \
+        libxcb-devel \
+        xcb-util-devel \
+        xcb-util-image-devel \
+        xcb-util-keysyms-devel \
+        xcb-util-renderutil-devel \
+        xcb-util-wm-devel \
+        xcb-util-cursor-devel \
         mesa-libGL-devel \
         mesa-libEGL-devel \
         mesa-libgbm-devel \
@@ -65,6 +73,7 @@ RUN ./configure \
         -submodules qtbase,qtdeclarative,qtsvg,qtshadertools \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
+        -xcb \
         -- -DCMAKE_C_COMPILER=${TOOLSET_ROOT}/usr/bin/gcc \
            -DCMAKE_CXX_COMPILER=${TOOLSET_ROOT}/usr/bin/g++ \
     && cmake --build . --parallel ${MAKE_JOBS} \
@@ -76,6 +85,9 @@ ARG QT_VERSION
 ARG RUST_VERSION=stable
 
 ENV QT_HOME=/opt/qt/${QT_VERSION}
+ENV QTDIR=/opt/qt/${QT_VERSION}
+ENV QT_HOST_PATH=/opt/qt/${QT_VERSION}
+ENV QMAKE=/opt/qt/${QT_VERSION}/bin/qmake
 ENV PATH=${QT_HOME}/bin:/opt/appimage:${PATH}
 ENV LD_LIBRARY_PATH=${QT_HOME}/lib
 ENV PKG_CONFIG_PATH=${QT_HOME}/lib/pkgconfig
@@ -107,6 +119,14 @@ RUN dnf -y update \
         libXinerama \
         libXi \
         libxkbcommon \
+        libxkbcommon-x11 \
+        libxcb \
+        xcb-util \
+        xcb-util-image \
+        xcb-util-keysyms \
+        xcb-util-renderutil \
+        xcb-util-wm \
+        xcb-util-cursor \
         mesa-libGL \
         mesa-libEGL \
         mesa-libgbm \
@@ -115,6 +135,16 @@ RUN dnf -y update \
         libpng \
         libjpeg-turbo \
         harfbuzz \
+        gcc-toolset-10 \
+        gcc-toolset-10-gcc \
+        gcc-toolset-10-gcc-c++ \
+        libicu \
+        pcre2-utf16 \
+        mesa-libGL-devel \
+        mesa-libGLU-devel \
+        libglvnd-devel \
+        libglvnd-glx \
+        libglvnd-opengl \
     && dnf clean all
 
 COPY --from=builder /opt/qt/${QT_VERSION} /opt/qt/${QT_VERSION}
@@ -122,6 +152,9 @@ COPY --from=builder /opt/qt/${QT_VERSION} /opt/qt/${QT_VERSION}
 # Install rust via rustup (needed for CXX-Qt builds)
 RUN curl -fsSL https://sh.rustup.rs | sh -s -- -y --default-toolchain ${RUST_VERSION}
 ENV PATH=/root/.cargo/bin:${PATH}
+
+# Sanity check Qt install to ensure qmake resolves Qt paths
+RUN /opt/qt/${QT_VERSION}/bin/qmake -query
 
 # Install linuxdeploy + appimagetool + linuxdeploy-plugin-qt
 ARG LINUXDEPLOY_VERSION=continuous
