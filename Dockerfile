@@ -4,7 +4,7 @@ ARG QT_VERSION=6.8.3
 FROM rockylinux:${ROCKY_VERSION} AS builder
 
 ARG QT_VERSION
-ARG MAKE_JOBS=6
+ARG MAKE_JOBS
 ENV TOOLSET_ROOT=/opt/rh/gcc-toolset-10/root
 ENV PATH=${TOOLSET_ROOT}/usr/bin:${TOOLSET_ROOT}/usr/sbin:${PATH}
 ENV LD_LIBRARY_PATH=${TOOLSET_ROOT}/usr/lib64:${TOOLSET_ROOT}/usr/lib:${LD_LIBRARY_PATH}
@@ -40,6 +40,9 @@ RUN dnf -y update \
         libXcursor-devel \
         libXinerama-devel \
         libXi-devel \
+        libXfixes-devel \
+        libXdamage-devel \
+        libXcomposite-devel \
         libxkbcommon-devel \
         libxkbcommon-x11-devel \
         libxcb-devel \
@@ -74,9 +77,10 @@ RUN ./configure \
         -qt-libpng -qt-libjpeg -qt-zlib \
         -opengl desktop \
         -xcb \
+        -widgets \
         -- -DCMAKE_C_COMPILER=${TOOLSET_ROOT}/usr/bin/gcc \
            -DCMAKE_CXX_COMPILER=${TOOLSET_ROOT}/usr/bin/g++ \
-    && cmake --build . --parallel ${MAKE_JOBS} \
+    && cmake --build . --parallel ${MAKE_JOBS:-$(nproc)} \
     && cmake --install .
 
 FROM rockylinux:${ROCKY_VERSION}
@@ -118,6 +122,9 @@ RUN dnf -y update \
         libXcursor \
         libXinerama \
         libXi \
+        libXfixes \
+        libXdamage \
+        libXcomposite \
         libxkbcommon \
         libxkbcommon-x11 \
         libxcb \
